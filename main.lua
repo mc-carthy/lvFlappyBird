@@ -3,6 +3,7 @@ function love.load()
     bird.y = 200
     bird.ySpeed = 0
     g = 500
+    jumpForce = 300
 end
 
 function love.update(dt)
@@ -16,4 +17,10 @@ function love.draw()
 
     love.graphics.setColor(255, 215, 63)
     love.graphics.rectangle('fill', 65, bird.y, 30, 25)
+end
+
+function love.keypressed(key)
+    if (bird.y > 0) then
+        bird.ySpeed = -jumpForce
+    end
 end
