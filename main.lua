@@ -8,13 +8,20 @@ function love.load()
     windowWidth = love.graphics.getWidth()
     windowHeight = love.graphics.getHeight()
 
-    pipeSpaceHeight = 100
-    pipeSpaceY = love.math.random(0, windowHeight - pipeSpaceHeight)
+    pipe = {}
+    pipe.spaceHeight = 100
+    pipe.spaceMin = 64
+    pipe.spaceY = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
+    pipe.x = windowWidth
+    pipe.speed = 60
+    pipe.width = 64    
 end
 
 function love.update(dt)
     bird.ySpeed = bird.ySpeed + (g * dt)
-    -- bird.y = bird.y + (bird.ySpeed * dt)
+    bird.y = bird.y + (bird.ySpeed * dt)
+
+    pipe.x = pipe.x - (pipe.speed * dt)
 end
 
 function love.draw()
@@ -24,17 +31,14 @@ function love.draw()
     love.graphics.setColor(255, 215, 63)
     love.graphics.rectangle('fill', 65, bird.y, 30, 25)
 
-    local pipeWidth = 64
-
     love.graphics.setColor(94, 201, 72)
-    love.graphics.rectangle('fill', windowWidth, 0, -pipeWidth, pipeSpaceY)
-    love.graphics.rectangle('fill', windowWidth, pipeSpaceY + pipeSpaceHeight, -pipeWidth, windowHeight - pipeSpaceY - pipeSpaceHeight)
+    love.graphics.rectangle('fill', pipe.x, 0, -pipe.width, pipe.spaceY)
+    love.graphics.rectangle('fill', pipe.x, pipe.spaceY + pipe.spaceHeight, -pipe.width, windowHeight - pipe.spaceY - pipe.spaceHeight)
 end
 
 function love.keypressed(key)
-    -- if (bird.y > 0) then
-    --     bird.ySpeed = -jumpForce
-    -- end
+    if (bird.y > 0) then
+        bird.ySpeed = -jumpForce
+    end
 
-    love.load()
 end
