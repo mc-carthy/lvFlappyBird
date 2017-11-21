@@ -11,10 +11,10 @@ function love.load()
     pipe = {}
     pipe.spaceHeight = 100
     pipe.spaceMin = 64
-    pipe.spaceY = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
-    pipe.x = windowWidth
-    pipe.speed = 60
-    pipe.width = 64    
+    pipe.speed = 120
+    pipe.width = 64
+
+    resetPipe()
 end
 
 function love.update(dt)
@@ -22,6 +22,10 @@ function love.update(dt)
     bird.y = bird.y + (bird.ySpeed * dt)
 
     pipe.x = pipe.x - (pipe.speed * dt)
+
+    if pipe.x + pipe.width < 0 then
+        resetPipe()
+    end
 end
 
 function love.draw()
@@ -40,5 +44,9 @@ function love.keypressed(key)
     if (bird.y > 0) then
         bird.ySpeed = -jumpForce
     end
+end
 
+function resetPipe()
+    pipe.spaceY = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
+    pipe.x = windowWidth + pipe.width
 end
