@@ -17,20 +17,29 @@ function love.load()
     pipe.speed = 120
     pipe.width = 64
 
-    resetPipe()
+    resetPipe(1)
+    resetPipe(2)
+
+    pipe.x1 = 300
+    pipe.x2 = 500
 end
 
 function love.update(dt)
     bird.ySpeed = bird.ySpeed + (g * dt)
     bird.y = bird.y + (bird.ySpeed * dt)
 
-    pipe.x = pipe.x - (pipe.speed * dt)
+    pipe.x1 = pipe.x1 - (pipe.speed * dt)
+    pipe.x2 = pipe.x2 - (pipe.speed * dt)
 
-    if pipe.x + pipe.width < 0 then
-        resetPipe()
+    if pipe.x1 + pipe.width < 0 then
+        resetPipe(1)
+    end
+    if pipe.x2 + pipe.width < 0 then
+        resetPipe(2)
     end
 
-    pipeCollisionCheck()
+    pipeCollisionCheck(pipe.x1, pipe.spaceY1)
+    pipeCollisionCheck(pipe.x2, pipe.spaceY2)
 end
 
 function love.draw()
@@ -40,9 +49,8 @@ function love.draw()
     love.graphics.setColor(255, 215, 63)
     love.graphics.rectangle('fill', bird.x, bird.y, bird.width, bird.height)
 
-    love.graphics.setColor(94, 201, 72)
-    love.graphics.rectangle('fill', pipe.x, 0, pipe.width, pipe.spaceY)
-    love.graphics.rectangle('fill', pipe.x, pipe.spaceY + pipe.spaceHeight, pipe.width, windowHeight - pipe.spaceY - pipe.spaceHeight)
+    drawPipe(pipe.x1, pipe.spaceY1)
+    drawPipe(pipe.x2, pipe.spaceY2)
 end
 
 function love.keypressed(key)
@@ -51,16 +59,27 @@ function love.keypressed(key)
     end
 end
 
-function resetPipe()
-    pipe.spaceY = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
-    pipe.x = windowWidth
+function resetPipe(pipeNum)
+    if pipeNum == 1 then
+        pipe.spaceY1 = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
+        pipe.x1 = windowWidth
+    else
+        pipe.spaceY2 = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
+        pipe.x2 = windowWidth
+    end
 end
 
-function pipeCollisionCheck()
-    if bird.x < (pipe.x + pipe.width) and
-        (bird.x + bird.width) > pipe.x and
-        (bird.y < pipe.spaceY or (bird.y + bird.height) > (pipe.spaceY + pipe.spaceHeight))
+function pipeCollisionCheck(pipeX, pipeSpaceY)
+    if bird.x < (pipeX + pipe.width) and
+        (bird.x + bird.width) > pipeX and
+        (bird.y < pipeSpaceY or (bird.y + bird.height) > (pipeSpaceY + pipe.spaceHeight))
     then
         love.load()
     end
+end
+
+function drawPipe(pipeX, pipeSpaceY)
+    love.graphics.setColor(94, 201, 72)
+    love.graphics.rectangle('fill', pipeX, 0, pipe.width, pipeSpaceY)
+    love.graphics.rectangle('fill', pipeX, pipeSpaceY + pipe.spaceHeight, pipe.width, windowHeight - pipeSpaceY - pipe.spaceHeight)
 end
