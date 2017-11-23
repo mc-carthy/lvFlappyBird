@@ -8,6 +8,9 @@ function love.load()
     g = 500
     jumpForce = 300
 
+    score = 0
+    nextPipe = 1
+
     windowWidth = love.graphics.getWidth()
     windowHeight = love.graphics.getHeight()
 
@@ -17,29 +20,37 @@ function love.load()
     pipe.speed = 120
     pipe.width = 64
 
-    resetPipe(1)
-    resetPipe(2)
+    pipe.spaceY1 = newPipeSpaceY()
+    pipe.spaceY2 = newPipeSpaceY()
 
-    pipe.x1 = 300
-    pipe.x2 = 500
+    pipe.x1 = windowWidth
+    pipe.x2 = windowWidth * 1.5
 end
 
 function love.update(dt)
     bird.ySpeed = bird.ySpeed + (g * dt)
     bird.y = bird.y + (bird.ySpeed * dt)
 
-    pipe.x1 = pipe.x1 - (pipe.speed * dt)
-    pipe.x2 = pipe.x2 - (pipe.speed * dt)
+    local function movePipe(pipeX, pipeSpaceY)
+        pipeX = pipeX - (pipe.speed * dt)
+        if (pipeX + pipe.width) < 0 then
+            pipeX = windowWidth
+            pipeSpaceY = newPipeSpaceY()
+        end
 
-    if pipe.x1 + pipe.width < 0 then
-        resetPipe(1)
-    end
-    if pipe.x2 + pipe.width < 0 then
-        resetPipe(2)
+        return pipeX, pipeSpaceY
     end
 
-    pipeCollisionCheck(pipe.x1, pipe.spaceY1)
-    pipeCollisionCheck(pipe.x2, pipe.spaceY2)
+    pipe.x1, pipe.spaceY1 = movePipe(pipe.x1, pipe.spaceY1)
+    pipe.x2, pipe.spaceY2 = movePipe(pipe.x2, pipe.spaceY2)
+
+    if pipeCollisionCheck(pipe.x1, pipe.spaceY1) or
+        pipeCollisionCheck(pipe.x2, pipe.spaceY2) or
+        bird.y > windowHeight then
+            love.load()
+    end
+
+    pipeScoreCheck()
 end
 
 function love.draw()
@@ -51,6 +62,9 @@ function love.draw()
 
     drawPipe(pipe.x1, pipe.spaceY1)
     drawPipe(pipe.x2, pipe.spaceY2)
+
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print(score, 15, 15)
 end
 
 function love.keypressed(key)
@@ -59,14 +73,8 @@ function love.keypressed(key)
     end
 end
 
-function resetPipe(pipeNum)
-    if pipeNum == 1 then
-        pipe.spaceY1 = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
-        pipe.x1 = windowWidth
-    else
-        pipe.spaceY2 = love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
-        pipe.x2 = windowWidth
-    end
+function newPipeSpaceY(pipeNum)
+    return love.math.random(pipe.spaceMin, windowHeight - pipe.spaceHeight - pipe.spaceMin)
 end
 
 function pipeCollisionCheck(pipeX, pipeSpaceY)
@@ -74,7 +82,19 @@ function pipeCollisionCheck(pipeX, pipeSpaceY)
         (bird.x + bird.width) > pipeX and
         (bird.y < pipeSpaceY or (bird.y + bird.height) > (pipeSpaceY + pipe.spaceHeight))
     then
-        love.load()
+        return true
+    end
+end
+
+function pipeScoreCheck()
+    if nextPipe == 1 and (bird.x > (pipe.x1 + pipe.width)) then
+        score = score + 1
+        nextPipe = 2
+    end
+
+    if nextPipe == 2 and (bird.x > (pipe.x2 + pipe.width)) then
+        score = score + 1
+        nextPipe = 1
     end
 end
 
