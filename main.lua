@@ -1,5 +1,7 @@
 function love.load()
     bird = {}
+    bird.image = love.graphics.newImage('bird.png')
+    bird.imageX, bird.imageY = bird.image:getDimensions()
     bird.x = 65
     bird.y = 200
     bird.width = 30
@@ -58,7 +60,8 @@ function love.draw()
     love.graphics.rectangle('fill', 0, 0, windowWidth, windowHeight)
 
     love.graphics.setColor(255, 215, 63)
-    love.graphics.rectangle('fill', bird.x, bird.y, bird.width, bird.height)
+    -- love.graphics.rectangle('fill', bird.x, bird.y, bird.width, bird.height)
+    love.graphics.draw(bird.image, bird.x + bird.width / 2, bird.y + bird.height / 2, math.atan(bird.ySpeed / pipe.speed), bird.width / bird.imageX, bird.height / bird.imageY, bird.imageX / 2, bird.imageY / 2)
 
     drawPipe(pipe.x1, pipe.spaceY1)
     drawPipe(pipe.x2, pipe.spaceY2)
@@ -68,8 +71,12 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if (bird.y > 0) then
-        bird.ySpeed = -jumpForce
+    if key ~= 'escape' then
+        if (bird.y > 0) then
+            bird.ySpeed = -jumpForce
+        end
+    else
+        love.event.quit(0)
     end
 end
 
